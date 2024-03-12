@@ -8,13 +8,21 @@ const port = 3000;
 // 500: Internal Server Error
 app.get('/', (req, res) => res.send('Testing Node.js app'));
 // app.get('/categories', (req, res) => res.send('Testing'));
-app.get('/categories', (req, res) => {
-	pool.query('SELECT * FROM category').then((result) => {
-		return res.status(200).json(result.rows);
-	}).catch(error => {
-		return res.status(500).json({error:error.message});
+// app.get('/categories', (req, res) => {
+// 	pool.query('SELECT * FROM category').then((result) => {
+// 		return res.status(200).json(result.rows);
+// 	}).catch(error => {
+// 		return res.status(500).json({error:error.message});
 	
-	});
+// 	});
+// });
+app.get('/categories', async (req, res) => {
+	try{
+		const result = await pool.query('SELECT * FROM category');
+		return res.status(200).json(result.rows);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
 });
 
 // console.log(process.env.DATABASE_URL);
