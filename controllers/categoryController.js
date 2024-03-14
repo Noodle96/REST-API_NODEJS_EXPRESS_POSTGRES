@@ -30,8 +30,10 @@ exports.getAllCategories = async (req, res) => {
 	}
 }
 //201: Created
+//422: Unprocessable Entity
 exports.createCategory = async (req, res) => {
 	try{
+		if(!req.body.name) return res.status(422).json({error:"Name is required"});
 		const result = await pool.query({
 			text: 'INSERT INTO category (name) VALUES ($1) RETURNING *',
 			values: [req.body.name]
