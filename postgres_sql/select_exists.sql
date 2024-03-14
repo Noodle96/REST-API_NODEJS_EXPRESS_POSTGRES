@@ -1,0 +1,1 @@
+SELECT EXISTS (SELECT * FROM category WHERE name = 'nameCategory');
