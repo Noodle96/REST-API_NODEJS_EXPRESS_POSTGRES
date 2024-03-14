@@ -50,3 +50,22 @@ exports.createCategory = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+
+// Aqui se tiene que validar 10 cosas:
+// 1.- Que el id exista
+// 2.- Que el name no exista ya que es un campo UNIQUE
+// 3.- Que el name no sea nulo
+exports.updateCategory = async (req, res) => {
+	try{
+		const result = await pool.query({
+			text: `UPDATE category
+				   SET name=$1, update_date=CURRENT_TIMESTAMP
+				   WHERE id=$2
+				   RETURNING *`,
+			values: [req.body.name, req.params.id]
+		});
+		return res.status(200).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
