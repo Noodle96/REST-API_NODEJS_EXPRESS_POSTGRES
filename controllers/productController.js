@@ -15,8 +15,18 @@ exports.getAllProducts = (req, res) => {
 	});
 }
 
+//422: Unprocessable Entity
 exports.createProduct = async (req, res) => {
 	try{
+		if(!req.body.name){ //  in this vvalidation => name="", enter here
+			return res.status(422).json({error:"Name is required"});
+		}
+		if(!req.body.price){ //  in this vvalidation => name="", enter here
+			return res.status(422).json({error:"Price is required"});
+		}
+		if(!req.body.category_id){ //  in this vvalidation => name="", enter here
+			return res.status(422).json({error:"Category_id is required"});
+		}
 		// con estas restricciones solo faltaria validar name, price, and category_id
 		const result = await pool.query({
 			text: `INSERT INTO product(name, description, price, currency, quantity, active, category_id)
