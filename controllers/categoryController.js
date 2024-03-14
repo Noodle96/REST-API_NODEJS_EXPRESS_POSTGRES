@@ -121,7 +121,7 @@ exports.deleteCategory = async (req, res) => {
 			return res.status(404).json({error:`Category with id ${req.params.id} not found`});
 		}
 		// [1]
-		return res.status(204).json();
+		return res.status(204).send();
 	}catch(error){
 		return res.status(500).json({error:error.message});
 	}

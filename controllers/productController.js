@@ -100,3 +100,27 @@ exports.updateProduct = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+
+//validar:
+// 1.- Que el id exista
+
+//404: Not Found
+// 500: Internal Server Error
+// 204: No Content
+exports.deleteProduct = async (req, res) => {
+	try{
+		const result = await pool.query({
+			text: `DELETE FROM product
+				   WHERE id=$1`,
+			values: [req.params.id]
+		});
+		// validando [1]
+		if(result.rowCount == 0){
+			return res.status(404).json({error:`Product with id ${req.params.id} not found`});
+		}
+		//a[1]
+		return res.status(204).send();
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
