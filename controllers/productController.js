@@ -21,11 +21,19 @@ exports.createProduct = async (req, res) => {
 		if(!req.body.name){ //  in this vvalidation => name="", enter here
 			return res.status(422).json({error:"Name is required"});
 		}
-		if(!req.body.price){ //  in this vvalidation => name="", enter here
+		if(!req.body.price){
 			return res.status(422).json({error:"Price is required"});
 		}
-		if(!req.body.category_id){ //  in this vvalidation => name="", enter here
+		if(!req.body.category_id){
 			return res.status(422).json({error:"Category_id is required"});
+		}else{
+			const existCategory = await pool.query({
+				text: 'SELECT EXISTS (SELECT * FROM category WHERE id = $1);',
+				values: [req.body.category_id],
+			});
+			if(!existCategory.rows[0].exists){
+				return res.status(422).json({error:"Category_id does not found"});
+			}
 		}
 		// con estas restricciones solo faltaria validar name, price, and category_id
 		const result = await pool.query({
