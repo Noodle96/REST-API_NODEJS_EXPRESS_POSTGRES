@@ -14,3 +14,26 @@ exports.getAllProducts = (req, res) => {
 		return res.status(500).json({error:error.message});
 	});
 }
+
+exports.createProduct = async (req, res) => {
+	try{
+		// con estas restricciones solo faltaria validar name, price, and category_id
+		const result = await pool.query({
+			text: `INSERT INTO product(name, description, price, currency, quantity, active, category_id)
+				   VALUES ($1, $2, $3, $4, $5, $6, $7)
+				   RETURNING *;`,
+			values: [
+				req.body.name,
+				req.body.description ? req.body.description : null,
+				req.body.price,
+				req.body.currency ? req.body.currency : 'USD',
+				req.body.quantity ? req.body.quantity : 0,
+				'active' in req.body ? req.body.active : true,
+				req.body.category_id
+			]
+		});
+		return res.status(201).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
