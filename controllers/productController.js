@@ -56,3 +56,47 @@ exports.createProduct = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+
+// Se tiene que validar los siguietntes items
+// 1.- Que el id exista
+// 2.- Que todos los campos son obligatorios
+// 3.- Que el id de la categoria exista
+exports.updateProduct = async (req, res) => {
+	try{
+		// validando [2]
+		if(!req.body.name || !req.body.description || !req.body.price || !req.body.currency || !req.body.quantity || !req.body.active || !req.body.category_id){
+			return res.status(422).json({error:"All fields are required"});
+		}
+		//vaidando [3]
+		const existCategory = await pool.query({
+			text: 'SELECT EXISTS (SELECT * FROM category WHERE id = $1);',
+			values: [req.body.category_id],
+		});
+		if(!existCategory.rows[0].exists){
+			return res.status(422).json({error:"Category_id does not found"});
+		}
+		const result = await pool.query({
+			text: `UPDATE product
+				   SET name=$1, description=$2, price=$3, currency=$4, quantity=$5, active=$6, category_id=$7, update_date=CURRENT_TIMESTAMP
+				   WHERE id=$8
+				   RETURNING *`,
+			values: [
+				req.body.name,
+				req.body.description,
+				req.body.price,
+				req.body.currency,
+				req.body.quantity,
+				req.body.active,
+				req.body.category_id,
+				req.params.id
+			]
+		});
+		//validando[1]
+		if(result.rowCount == 0){
+			return res.status(404).json({error:`Product with id ${req.params.id} not found`});
+		}
+		return res.status(200).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
