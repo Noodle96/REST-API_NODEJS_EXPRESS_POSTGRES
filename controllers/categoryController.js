@@ -55,8 +55,28 @@ exports.createCategory = async (req, res) => {
 // 1.- Que el id exista
 // 2.- Que el name no exista ya que es un campo UNIQUE
 // 3.- Que el name no sea nulo
+
+// 200: OK
+// 500: Internal Server Error
+// 422: Unprocessable Entity
+// 409: Conflict
+// 404: Not Found
 exports.updateCategory = async (req, res) => {
 	try{
+		// Validadando que el name no sea nulo
+		if(!req.body.name){
+			return res.status(422).json({error:"Name is required"});
+		}else{
+			// validando que el name no exista ya que es un campo UNIQUE
+			const existResult = await pool.query({
+				text: 'SELECT EXISTS (SELECT * FROM category WHERE name = $1);',
+				values: [req.body.name],
+			});
+			//validate if category already exists
+			if(existResult.rows[0].exists){
+				return res.status(409).json({error:`Category ${req.body.name} already exists`});
+			}
+		}
 		const result = await pool.query({
 			text: `UPDATE category
 				   SET name=$1, update_date=CURRENT_TIMESTAMP
@@ -64,6 +84,10 @@ exports.updateCategory = async (req, res) => {
 				   RETURNING *`,
 			values: [req.body.name, req.params.id]
 		});
+		//validando que el id exista
+		if(result.rowCount == 0){
+			return res.status(404).json({error:`Category with id ${req.params.id} not found`});
+		}
 		return res.status(200).json(result.rows[0]);
 	}catch(error){
 		return res.status(500).json({error:error.message});

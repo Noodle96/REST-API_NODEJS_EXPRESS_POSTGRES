@@ -16,6 +16,7 @@ exports.getAllProducts = (req, res) => {
 }
 
 //422: Unprocessable Entity
+// De aqui se tiene que validar que todos los campos excepto la descripcion no sean nulos
 exports.createProduct = async (req, res) => {
 	try{
 		if(!req.body.name){ //  in this vvalidation => name="", enter here
