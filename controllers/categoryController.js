@@ -29,3 +29,15 @@ exports.getAllCategories = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+//201: Created
+exports.createCategory = async (req, res) => {
+	try{
+		const result = await pool.query({
+			text: 'INSERT INTO category (name) VALUES ($1) RETURNING *',
+			values: [req.body.name]
+		});
+		return res.status(201).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}

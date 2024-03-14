@@ -1,8 +1,10 @@
 const express = require('express');
-const app = express();
 const categoryRoute = require('./routes/categoryroute');
 const productRoute = require('./routes/productRoute');
 const port = 3000;
+
+const app = express();
+app.use(express.json());
 
 app.get('/', (req, res) => res.send('Testing Node.js app'));
 
