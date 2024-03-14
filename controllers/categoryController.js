@@ -31,9 +31,16 @@ exports.getAllCategories = async (req, res) => {
 }
 //201: Created
 //422: Unprocessable Entity
+//409: Conflict
 exports.createCategory = async (req, res) => {
 	try{
 		if(!req.body.name) return res.status(422).json({error:"Name is required"});
+		const existResult = await pool.query({
+			text: 'SELECT EXISTS (SELECT * FROM category WHERE name = $1);',
+			values: [req.body.name],
+		});
+		//validate if category already exists
+		if(existResult.rows[0].exists) return res.status(409).json({error:`Category ${req.body.name} already exists`});
 		const result = await pool.query({
 			text: 'INSERT INTO category (name) VALUES ($1) RETURNING *',
 			values: [req.body.name]
