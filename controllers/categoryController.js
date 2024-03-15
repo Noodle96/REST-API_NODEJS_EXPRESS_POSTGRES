@@ -126,3 +126,21 @@ exports.deleteCategory = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+//validar
+// 1.- que el id exista
+exports.getCategoryById = async (req, res) => {
+	try{
+		const result = await pool.query({
+			text: 'SELECT * FROM category WHERE id = $1',
+			values: [req.params.id]
+		});
+		// validando [1]
+		if(result.rowCount == 0){
+			return res.status(404).json({error:`Category with id ${req.params.id} not found`});
+		}
+		// [1]
+		return res.status(200).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
