@@ -151,3 +151,35 @@ exports.getProductById = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+
+//validar
+// 1.- Que category_id exista
+exports.getProductsByCategoryId = async (req, res) => {
+	try{
+		// validando [1]
+		const existCategory = await pool.query({
+			text: 'SELECT EXISTS (SELECT * FROM category WHERE id = $1);',
+			values: [req.params.categoryID],
+		});
+		if(!existCategory.rows[0].exists){
+			return res.status(404).json({error:`Category with id ${req.params.categoryID} not found`});
+		}
+		// [1]
+		const result = await pool.query({
+			text: `
+				SELECT p.id, p.name, p.description, p.price, p.currency,
+				p.quantity, p.active, p.created_date, p.update_date,
+
+				(SELECT ROW_TO_JSON(category_obj) FROM (
+					SELECT id, name FROM category WHERE id = p.category_id
+				) category_obj) AS category
+
+				FROM product AS p
+				WHERE category_id = $1;`,
+			values: [req.params.categoryID]
+		});
+		return res.status(200).json(result.rows);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
