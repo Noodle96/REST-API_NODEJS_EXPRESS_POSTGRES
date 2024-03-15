@@ -7,9 +7,9 @@ const { getAllCategories,
 
 
 const router = app.Router();
-router.get('/categories', getAllCategories);
-router.post('/categories', createCategory);
-router.put('/categories/:id', updateCategory);
-router.delete('/categories/:id',deleteCategory)
+router.get('/', getAllCategories);
+router.post('/', createCategory);
+router.put('/:id', updateCategory);
+router.delete('/:id',deleteCategory)
 
 module.exports = router;
