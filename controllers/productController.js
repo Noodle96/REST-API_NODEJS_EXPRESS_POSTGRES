@@ -124,3 +124,30 @@ exports.deleteProduct = async (req, res) => {
 		return res.status(500).json({error:error.message});
 	}
 }
+//validar
+// 1.- Que el id exista
+exports.getProductById = async (req, res) => {
+	try{
+		const result = await pool.query({
+			text: `
+				SELECT p.id, p.name, p.description, p.price, p.currency,
+				p.quantity, p.active, p.created_date, p.update_date,
+
+				(SELECT ROW_TO_JSON(category_obj) FROM (
+					SELECT id, name FROM category WHERE id = p.category_id
+				) category_obj) AS category
+
+				FROM product AS p
+				WHERE id = $1;`,
+			values: [req.params.id]
+		});
+		// validando [1]
+		if(result.rowCount == 0){
+			return res.status(404).json({error:`Product with id ${req.params.id} not found`});
+		}
+		// [1]
+		return res.status(200).json(result.rows[0]);
+	}catch(error){
+		return res.status(500).json({error:error.message});
+	}
+}
